@@ -6,6 +6,7 @@ on:
 jobs:
   windows:
     runs-on: windows-latest
+
     steps:
       - name: Check Windows
         run: |
@@ -13,15 +14,18 @@ jobs:
           systeminfo | Select-String "OS Name","OS Version"
         shell: powershell
 
-      - name: Check Tailscale
-        run: |
-          if (Get-Command tailscale -ErrorAction SilentlyContinue) {
-            tailscale status
-          } else {
-            Write-Host "Tailscale is not installed"
-          }
-        shell: powershell
       - name: Install Tailscale
         run: |
           winget install --id Tailscale.Tailscale --silent --accept-package-agreements --accept-source-agreements
+        shell: powershell
+
+      - name: Check Tailscale
+        run: |
+          $tailscale = "C:\Program Files\Tailscale\tailscale.exe"
+          if (Test-Path $tailscale) {
+            & $tailscale version
+          } else {
+            Write-Host "Tailscale executable not found"
+            exit 1
+          }
         shell: powershell
