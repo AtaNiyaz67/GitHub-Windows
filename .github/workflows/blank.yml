@@ -21,3 +21,7 @@ jobs:
             Write-Host "Tailscale is not installed"
           }
         shell: powershell
+      - name: Install Tailscale
+        run: |
+          winget install --id Tailscale.Tailscale --silent --accept-package-agreements --accept-source-agreements
+        shell: powershell
