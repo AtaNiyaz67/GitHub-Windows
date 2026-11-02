@@ -8,5 +8,16 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Check Windows
-        run: systeminfo
+        run: |
+          Write-Host "Windows is running"
+          systeminfo | Select-String "OS Name","OS Version"
+        shell: powershell
+
+      - name: Check Tailscale
+        run: |
+          if (Get-Command tailscale -ErrorAction SilentlyContinue) {
+            tailscale status
+          } else {
+            Write-Host "Tailscale is not installed"
+          }
         shell: powershell
