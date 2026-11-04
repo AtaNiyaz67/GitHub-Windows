@@ -1,31 +1,39 @@
-name: Windows Runner
+# .github/workflows/blank.yml
+# Мақсаты: Windows Runner іске қосып, Tailscale желісіне қауіпсіз қосылу.
+
+name: Tailscale Windows Connection
 
 on:
+  # Негізгі тармаққа push болғанда іске қосылады
+  push:
+    branches: [ main ]
+  # Pull request болғанда іске қосылады
+  pull_request:
+    branches: [ main ]
+  # GitHub Actions интерфейсінен қолмен іске қосуға болады
   workflow_dispatch:
 
 jobs:
-  windows:
+  connect-tailscale:
+    # Windows Runner пайдаланылады
     runs-on: windows-latest
 
     steps:
-      - name: Check Windows
-        run: |
-          Write-Host "Windows is running"
-          systeminfo | Select-String "OS Name","OS Version"
-        shell: powershell
+      # 1-қадам: Репозиторий кодын жүктеп алу
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Install Tailscale
-        run: |
-          winget install --id Tailscale.Tailscale --silent --accept-package-agreements --accept-source-agreements
-        shell: powershell
+      # 2-қадам: Tailscale GitHub Action арқылы желіге қосылу
+      # TS_AUTHKEY — GitHub Secrets ішінде сақталған, ашық жазылмайды
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v4
+        with:
+          authkey: ${{ secrets.TS_AUTHKEY }}
 
-      - name: Check Tailscale
-        run: |
-          $tailscale = "C:\Program Files\Tailscale\tailscale.exe"
-          if (Test-Path $tailscale) {
-            & $tailscale version
-          } else {
-            Write-Host "Tailscale executable not found"
-            exit 1
-          }
-        shell: powershell
+      # 3-қадам: Tailscale қосылым күйін тексеру
+      - name: Check Tailscale status
+        run: tailscale status
+
+      # 4-қадам: Tailscale IP мекенжайын көрсету
+      - name: Show Tailscale IP
+        run: tailscale ip -4
