@@ -1,39 +1,23 @@
-# .github/workflows/blank.yml
-# Мақсаты: Windows Runner іске қосып, Tailscale желісіне қауіпсіз қосылу.
-
-name: Tailscale Windows Connection
+name: Tailscale Connection
 
 on:
-  # Негізгі тармаққа push болғанда іске қосылады
   push:
     branches: [ main ]
-  # Pull request болғанда іске қосылады
   pull_request:
     branches: [ main ]
-  # GitHub Actions интерфейсінен қолмен іске қосуға болады
   workflow_dispatch:
 
 jobs:
-  connect-tailscale:
-    # Windows Runner пайдаланылады
+  connect:
     runs-on: windows-latest
-
     steps:
-      # 1-қадам: Репозиторий кодын жүктеп алу
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2-қадам: Tailscale GitHub Action арқылы желіге қосылу
-      # TS_AUTHKEY — GitHub Secrets ішінде сақталған, ашық жазылмайды
       - name: Connect to Tailscale
         uses: tailscale/github-action@v4
         with:
-          authkey: ${{ secrets.TS_AUTHKEY }}
-
-      # 3-қадам: Tailscale қосылым күйін тексеру
-      - name: Check Tailscale status
-        run: tailscale status
-
-      # 4-қадам: Tailscale IP мекенжайын көрсету
-      - name: Show Tailscale IP
-        run: tailscale ip -4
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+          version: latest
